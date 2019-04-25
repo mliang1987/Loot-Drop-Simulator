@@ -20,9 +20,10 @@ public class WeaponAttribute extends Attribute{
 	Type type;
 	double value;
 	
-	public WeaponAttribute(Type weaponAttributeType) {
+	public WeaponAttribute(Type weaponAttributeType, double weaponAttributeValue) {
 		super(Attribute.Category.WEAPON);
 		this.type = weaponAttributeType;
+		this.value = weaponAttributeValue;
 	}
 	
 	public double getWeaponAttributeValue() {
