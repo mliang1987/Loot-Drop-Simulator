@@ -1,11 +1,26 @@
 package items.weapons;
 
+import java.util.Random;
+
 import items.*;
+import items.weapons.WeaponAttributes;
 
 public class Weapon extends Item {
 	
 	public enum Slot{
 		PRIMARY, SECONDARY, TERTIARY;
+	}
+	
+	public enum Archetype{
+		HEAVY,
+		BALANCED,
+		LIGHT,
+		RAPID;
+		
+		public static Archetype getRandomWeaponArchetype() {
+            Random random = new Random();
+            return values()[random.nextInt(values().length)];
+		}
 	}
 	
 	public enum Type{
@@ -14,20 +29,34 @@ public class Weapon extends Item {
 		SUBMACHINE,
 		SHOTGUN,
 		SNIPER,
+		BEAM,
+		MELEE,
 		MACHINE,
-		LAUNCHER;
+		ROCKET;
+		
+		public static Type getRandomWeaponType() {
+            Random random = new Random();
+            return values()[random.nextInt(values().length)];
+        }
 	}
 	
 	
 	Slot slot;
-	double[] attributes;
 	Type type;
+	Archetype archetype;
+	double[] attributes;
+	int tier;
+	int itemLevel;
 	
-	public Weapon(Slot slot, Type type, double[] attributes, int itemLevel,  String name) {
-		super(Item.Type.WEAPON, itemLevel, name);
+	public Weapon(Slot slot, Type type, Archetype archetype, double[] attributes, int itemLevel, int tier, String name) {
+		super(Item.Type.WEAPON, Item.Rarity.RARE, itemLevel, name);
 		this.slot = slot;
 		this.type = type;
+		this.tier = tier;
+		this.archetype=archetype;
+		this.itemLevel = itemLevel;
 		this.attributes = attributes;
+		this.changeName(Item.generateItemName(Item.Type.WEAPON, Item.Rarity.RARE, this.getItemName()));
 	}
 	
 	public Slot getWeaponSlot() {
@@ -41,50 +70,48 @@ public class Weapon extends Item {
 		return attributes[index];
 	}
 	
+	public double calculateDPS() {
+		double dps = 0;
+		return dps;
+	}
+	
+	
 	public String toString() {
-		String toReturn = "-------------------------------\n"+this.getItemName()+"\n-------------------------------\n";
-		double rawDamage = (attributes[WeaponAttributes.KINETIC_DAMAGE]+attributes[WeaponAttributes.VOID_DAMAGE]
-				+attributes[WeaponAttributes.QUANTUM_DAMAGE]+attributes[WeaponAttributes.ENTROPY_DAMAGE])
-				*attributes[WeaponAttributes.PROJECTILES]*attributes[WeaponAttributes.RATE_OF_FIRE];
-		double critChance = attributes[WeaponAttributes.CRITICAL_CHANCE]/100;
-		double critMulti = attributes[WeaponAttributes.CRITICAL_MULTIPLIER];
-		double damagePerSecond = ((1-critChance)*rawDamage + (critChance*critMulti*rawDamage))/60;
-
-		toReturn+="Regular DPS: " + (int) damagePerSecond +"\n";
-		if(attributes[WeaponAttributes.PRECISION_MULTIPLIER]>1) {	
-			toReturn+="Precision DPS: " + (int) (damagePerSecond*attributes[WeaponAttributes.PRECISION_MULTIPLIER]) +"\n";
-		}
-		toReturn+="Kinetic Damage: " + (int) (attributes[WeaponAttributes.KINETIC_DAMAGE])+"\n";
-		if(attributes[WeaponAttributes.VOID_DAMAGE]>0) {
-			toReturn+="Void Damage: " + (int) (attributes[WeaponAttributes.VOID_DAMAGE])+"\n";
-		}
-		if(attributes[WeaponAttributes.ENTROPY_DAMAGE]>0) {
-			toReturn+="Entropy Damage: " + (int) (attributes[WeaponAttributes.ENTROPY_DAMAGE])+"\n";
-		}
-		if(attributes[WeaponAttributes.QUANTUM_DAMAGE]>0) {
-			toReturn+="Quantum Damage: " + (int) (attributes[WeaponAttributes.QUANTUM_DAMAGE])+"\n";
-		}
-		toReturn+="Rate of Fire: " + (int) (attributes[WeaponAttributes.RATE_OF_FIRE])+"\n";
+		
+		String toReturn = "-------------------------------\n"+this.getItemName()+"\n";
+		toReturn 	+="-------------------------------\n"+this.getItemBase()+"\n-------------------------------\n";
+		toReturn 	+="Kinetic Damage: " 
+					+ (int) (Math.floor(attributes[WeaponAttributes.KINETIC_LOW])*tier)
+					+" - "
+					+ (int) (Math.ceil(attributes[WeaponAttributes.KINETIC_HIGH])*tier)
+					+"\n";
+		toReturn	+="Rate of Fire: " 
+					+ (int) (attributes[WeaponAttributes.RATE_OF_FIRE])
+					+"\n";
 		if(attributes[WeaponAttributes.CRITICAL_CHANCE]>0) {
-			toReturn+="Critical Chance: " + (int) (attributes[WeaponAttributes.CRITICAL_CHANCE])+"%\n";
+			toReturn+="Critical Chance: " 
+					+ (int) (attributes[WeaponAttributes.CRITICAL_CHANCE])
+					+"%\n";
 		}
 		if(attributes[WeaponAttributes.PROJECTILES]>1) {
-			toReturn+="Projectiles: " + (int) (attributes[WeaponAttributes.PROJECTILES])+"\n";
+			toReturn+="Projectiles: " 
+					+ (int) (attributes[WeaponAttributes.PROJECTILES])
+					+"\n";
 		}
 		if(attributes[WeaponAttributes.BLAST_RADIUS]>0) {
 			toReturn+="Blast Radius: " + (int) (attributes[WeaponAttributes.BLAST_RADIUS])+"\n";
 		}
-		if(attributes[WeaponAttributes.VELOCITY]<2000) {
+		if(attributes[WeaponAttributes.VELOCITY]<1000) {
 			toReturn+="Velocity: " + (int) (attributes[WeaponAttributes.VELOCITY])+"\n";
 		}
-		if(attributes[WeaponAttributes.RANGE]<2000) {
+		if(attributes[WeaponAttributes.RANGE]<1000) {
 			toReturn+="Range: " + (int) (attributes[WeaponAttributes.RANGE])+"\n";
 		}
 		toReturn+="Stability: " + (int) (attributes[WeaponAttributes.STABILITY])+"\n";
 		toReturn+="Handling: " + (int) (attributes[WeaponAttributes.HANDLING])+"\n";
 		toReturn+="Reload Speed: " + (int) (attributes[WeaponAttributes.RELOAD_SPEED])+"\n";
 		toReturn+="Magazine Size: " + (int) (attributes[WeaponAttributes.MAGAZINE])+"\n";
-		toReturn+="Reserve Ammo: " + (int) (attributes[WeaponAttributes.RESERVES])+"\n";
+		toReturn+="Reserve Ammo: " + (int) (attributes[WeaponAttributes.RESERVE_AMMO])+"\n";
 		return toReturn;
 	}
 	
