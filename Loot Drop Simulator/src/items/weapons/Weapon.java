@@ -16,7 +16,6 @@ public class Weapon extends Item {
 		BALANCED,
 		LIGHT,
 		RAPID;
-		
 		public static Archetype getRandomWeaponArchetype() {
             Random random = new Random();
             return values()[random.nextInt(values().length)];
@@ -33,7 +32,6 @@ public class Weapon extends Item {
 		MELEE,
 		MACHINE,
 		ROCKET;
-		
 		public static Type getRandomWeaponType() {
             Random random = new Random();
             return values()[random.nextInt(values().length)];
@@ -46,17 +44,23 @@ public class Weapon extends Item {
 	Archetype archetype;
 	double[] attributes;
 	int tier;
-	int itemLevel;
 	
 	public Weapon(Slot slot, Type type, Archetype archetype, double[] attributes, int itemLevel, int tier, String name) {
-		super(Item.Type.WEAPON, Item.Rarity.RARE, itemLevel, name);
+		super(Item.Type.WEAPON, Item.Rarity.COMMON, itemLevel, name);
 		this.slot = slot;
 		this.type = type;
 		this.tier = tier;
 		this.archetype=archetype;
-		this.itemLevel = itemLevel;
 		this.attributes = attributes;
-		this.changeName(Item.generateItemName(Item.Type.WEAPON, Item.Rarity.RARE, this.getItemName()));
+	}
+	
+	public void changeWeaponRarity(Rarity rarity) {
+		if(rarity != this.getRarity()) {
+			changeRarity(rarity);
+			if(rarity!=Rarity.COMMON) {
+				this.changeItemName(Item.generateItemName(Item.Type.WEAPON, Item.Rarity.RARE, this.getItemName()));
+			}
+		}
 	}
 	
 	public Slot getWeaponSlot() {
@@ -78,12 +82,15 @@ public class Weapon extends Item {
 	
 	public String toString() {
 		
-		String toReturn = "-------------------------------\n"+this.getItemName()+"\n";
+		String toReturn = ""; 
+		if(this.getRarity() != Item.Rarity.COMMON) {
+			toReturn+="-------------------------------\n"+this.getItemName()+"\n";
+		}
 		toReturn 	+="-------------------------------\n"+this.getItemBase()+"\n-------------------------------\n";
 		toReturn 	+="Kinetic Damage: " 
-					+ (int) (Math.floor(attributes[WeaponAttributes.KINETIC_LOW])*tier)
+					+ (int) Math.floor((attributes[WeaponAttributes.KINETIC_LOW]))
 					+" - "
-					+ (int) (Math.ceil(attributes[WeaponAttributes.KINETIC_HIGH])*tier)
+					+ (int) Math.ceil((attributes[WeaponAttributes.KINETIC_HIGH]))
 					+"\n";
 		toReturn	+="Rate of Fire: " 
 					+ (int) (attributes[WeaponAttributes.RATE_OF_FIRE])
@@ -112,6 +119,8 @@ public class Weapon extends Item {
 		toReturn+="Reload Speed: " + (int) (attributes[WeaponAttributes.RELOAD_SPEED])+"\n";
 		toReturn+="Magazine Size: " + (int) (attributes[WeaponAttributes.MAGAZINE])+"\n";
 		toReturn+="Reserve Ammo: " + (int) (attributes[WeaponAttributes.RESERVE_AMMO])+"\n";
+		toReturn+="Tier: " + tier+"\n";
+		toReturn+="Item Level: " + this.getItemLevel() +"\n";
 		return toReturn;
 	}
 	

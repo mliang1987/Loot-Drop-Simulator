@@ -1,26 +1,28 @@
 package items.weapons;
 
-import java.io.IOException;
-
+import items.Item;
 import items.weapons.Weapon.*;
 
 public class WeaponGenerator {
 
 	public static Weapon generateWeapon(Slot slot, Type type, int zoneLevel) {
-		try {
-			WeaponAttributes.readWeaponBases();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		int tier = generateRandomTier(zoneLevel);
+		
 		Weapon.Archetype archetype = null;
 		while(archetype == null || (slot==Slot.TERTIARY && archetype==Archetype.RAPID)) {
 			archetype = Archetype.getRandomWeaponArchetype();
 		}
+		
 		String baseName = generateBaseName(type, tier, archetype);
-		double[] attributes = WeaponAttributes.getAttributes(type+"_"+archetype);
+		
+		double[] attributes = WeaponAttributes.getAttributes(type+"_"+archetype).clone();
+		
+		attributes[WeaponAttributes.KINETIC_LOW]=attributes[WeaponAttributes.KINETIC_LOW]*tier;
+		attributes[WeaponAttributes.KINETIC_HIGH]=attributes[WeaponAttributes.KINETIC_HIGH]*tier;
+		
 		Weapon toReturn = new Weapon(slot, type, archetype, attributes, zoneLevel, tier, baseName);
+		
+		toReturn.changeWeaponRarity(Item.Rarity.getRandomItemRarity());
 		System.out.println(toReturn);
 		return toReturn;
 	}
@@ -28,10 +30,12 @@ public class WeaponGenerator {
 
 	public static int generateRandomTier(int zoneLevel) {
 		int tierTop = (zoneLevel / 6 + 1 > 14) ? 14 : zoneLevel / 6 + 1;
-		int tierBottom = (tierTop - 6 >= 0) ? tierTop - 6 : 0;
+		int tierBottom = 0;
+		tierBottom = (tierTop - 6 >= 0) ? tierTop - 6 : 0;
 		int tierRange = ((int) (Math.random() * (tierTop - tierBottom))) + 1;
 		return tierBottom + tierRange;
 	}
+	
 	public static String generateBaseName(Type type, int tier, Archetype archetype ) {
 		String toReturn;
 		if (tier > 14) {
@@ -126,21 +130,4 @@ public class WeaponGenerator {
 		}
 		return toReturn;
 	}
-
-	public static void main(String[] args) {
-		for(int i = 5; i<=100; i+=5) {
-			generateWeapon(Weapon.Slot.PRIMARY, Weapon.Type.PISTOL,i);
-			generateWeapon(Weapon.Slot.PRIMARY, Weapon.Type.RIFLE,i);
-			generateWeapon(Weapon.Slot.PRIMARY, Weapon.Type.SUBMACHINE,i);
-			generateWeapon(Weapon.Slot.SECONDARY, Weapon.Type.SHOTGUN,i);
-			generateWeapon(Weapon.Slot.SECONDARY, Weapon.Type.SNIPER,i);
-			generateWeapon(Weapon.Slot.SECONDARY, Weapon.Type.BEAM,i);
-			generateWeapon(Weapon.Slot.TERTIARY, Weapon.Type.ROCKET,i);
-			generateWeapon(Weapon.Slot.TERTIARY, Weapon.Type.MACHINE,i);
-			generateWeapon(Weapon.Slot.TERTIARY, Weapon.Type.MELEE,i);
-			
-			System.out.println("----------End of Level: "+i+"----------");
-		}
-	}
-
 }

@@ -26,4 +26,13 @@ public class ItemNames {
 			recordSizes[i]=records.get(i).length;
 		}
 	}
+	
+	public static void initialize() {
+		try {
+			ItemNames.readItemNames();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }

@@ -45,6 +45,15 @@ public class WeaponAttributes{
 
 	public static HashMap<String, double[]> weaponBases = new HashMap<>();
 	
+	public static void initialize() {
+		try {
+			WeaponAttributes.readWeaponBases();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public static void readWeaponBases() throws IOException {
 		List<ArrayList<String>> records = new ArrayList<ArrayList<String>>();
 		try (CSVReader csvReader = new CSVReader(new FileReader("BaseWeapons.csv"));) {
@@ -53,7 +62,7 @@ public class WeaponAttributes{
 		        records.add(new ArrayList<String>(Arrays.asList(values)));
 		    }
 		}
-		ArrayList<String> listHeaders = records.remove(0);
+		records.remove(0);
 		for(ArrayList<String> l : records) {
 			String baseID = l.remove(0);
 			double[] attributeValues = Arrays.stream(l.toArray(new String[0]))

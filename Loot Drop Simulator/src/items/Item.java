@@ -1,15 +1,23 @@
 package items;
 
-import java.io.IOException;
+import java.util.Random;
 
 public class Item {
 
 	public enum Type{
 		WEAPON, ARMOR, CONSUMABLE;
+		public static Type getRandomItemType() {
+            Random random = new Random();
+            return values()[random.nextInt(values().length)];
+        }
 	}
 	
 	public enum Rarity{
 		COMMON, UNCOMMON, RARE, LEGENDARY, MYTHIC;
+		public static Rarity getRandomItemRarity() {
+            Random random = new Random();
+            return values()[random.nextInt(values().length)];
+        }
 	}
 
 	Type type;
@@ -42,8 +50,8 @@ public class Item {
 	public String getItemBase() {
 		return this.base;
 	}
-	
-	public void changeName(String name) {
+
+	public void changeItemName(String name) {
 		this.name = name;
 	}
 	
@@ -51,13 +59,11 @@ public class Item {
 		this.rarity = rarity;
 	}
 	
+	public Rarity getRarity() {
+		return this.rarity;
+	}
+	
 	public static String generateItemName(Item.Type itemType, Item.Rarity itemRarity, String currentName) {
-		try {
-			ItemNames.readItemNames();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		String name = currentName;
 		if(itemRarity==Item.Rarity.UNCOMMON||itemRarity==Item.Rarity.RARE) {
 			int prefixSize = ItemNames.recordSizes[0];
@@ -68,11 +74,4 @@ public class Item {
 		}
 		return name;
 	}
-	
-	public static void main(String[] args) {
-		for(int i = 0; i<10; i++) {
-			System.out.println(generateItemName(Item.Type.WEAPON, Item.Rarity.RARE, null));
-		}
-	}
-
 }
