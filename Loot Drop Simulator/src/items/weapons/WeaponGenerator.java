@@ -5,23 +5,39 @@ import items.weapons.Weapon.*;
 
 public class WeaponGenerator {
 
-	public static Weapon generateWeapon(Slot slot, Type type, int zoneLevel) {
-		int tier = generateRandomTier(zoneLevel);
-		
+	public static Weapon generateWeapon(Slot slot, Type type, int zoneLevel, int tier) {
 		Weapon.Archetype archetype = null;
 		while(archetype == null || (slot==Slot.TERTIARY && archetype==Archetype.RAPID)) {
 			archetype = Archetype.getRandomWeaponArchetype();
 		}
 		
 		String baseName = generateBaseName(type, tier, archetype);
-		
 		double[] attributes = WeaponAttributes.getAttributes(type+"_"+archetype).clone();
 		
-		attributes[WeaponAttributes.KINETIC_LOW]=attributes[WeaponAttributes.KINETIC_LOW]*tier;
-		attributes[WeaponAttributes.KINETIC_HIGH]=attributes[WeaponAttributes.KINETIC_HIGH]*tier;
+		if(attributes[WeaponAttributes.BASE_ENERGY_LOW]>0) {
+			int energy =(int) ((3*Math.random())+1);
+			attributes[WeaponAttributes.BASE_ENERGY_TYPE] = energy;
+			switch (energy) {
+				case 1:
+					attributes[WeaponAttributes.ENTROPY_LOW]=attributes[WeaponAttributes.BASE_ENERGY_LOW]*tier;
+					attributes[WeaponAttributes.ENTROPY_HIGH]=attributes[WeaponAttributes.BASE_ENERGY_HIGH]*tier;					
+					break;
+				case 2:
+					attributes[WeaponAttributes.QUANTUM_LOW]=attributes[WeaponAttributes.BASE_ENERGY_LOW]*tier;
+					attributes[WeaponAttributes.QUANTUM_HIGH]=attributes[WeaponAttributes.BASE_ENERGY_HIGH]*tier;
+					break;
+				default:
+					attributes[WeaponAttributes.VOID_LOW]=attributes[WeaponAttributes.BASE_ENERGY_LOW]*tier;
+					attributes[WeaponAttributes.VOID_HIGH]=attributes[WeaponAttributes.BASE_ENERGY_HIGH]*tier;
+					break;
+			}
+		}
+		else{
+			attributes[WeaponAttributes.KINETIC_LOW]=attributes[WeaponAttributes.KINETIC_LOW]*tier;
+			attributes[WeaponAttributes.KINETIC_HIGH]=attributes[WeaponAttributes.KINETIC_HIGH]*tier;
+		}		
 		
 		Weapon toReturn = new Weapon(slot, type, archetype, attributes, zoneLevel, tier, baseName);
-		
 		toReturn.changeWeaponRarity(Item.Rarity.getRandomItemRarity());
 		System.out.println(toReturn);
 		return toReturn;

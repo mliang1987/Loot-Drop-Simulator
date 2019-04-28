@@ -87,11 +87,35 @@ public class Weapon extends Item {
 			toReturn+="-------------------------------\n"+this.getItemName()+"\n";
 		}
 		toReturn 	+="-------------------------------\n"+this.getItemBase()+"\n-------------------------------\n";
-		toReturn 	+="Kinetic Damage: " 
+		if(attributes[WeaponAttributes.KINETIC_LOW]>0) {
+			toReturn+="Kinetic Damage: " 
 					+ (int) Math.floor((attributes[WeaponAttributes.KINETIC_LOW]))
 					+" - "
 					+ (int) Math.ceil((attributes[WeaponAttributes.KINETIC_HIGH]))
 					+"\n";
+		}
+		if(attributes[WeaponAttributes.ENTROPY_LOW]>0) {
+			toReturn+="Entropy Damage: " 
+					+ (int) Math.floor((attributes[WeaponAttributes.ENTROPY_LOW]))
+					+" - "
+					+ (int) Math.ceil((attributes[WeaponAttributes.ENTROPY_HIGH]))
+					+"\n";
+		}
+		if(attributes[WeaponAttributes.QUANTUM_LOW]>0) {
+			toReturn+="Quantum Damage: " 
+					+ (int) Math.floor((attributes[WeaponAttributes.QUANTUM_LOW]))
+					+" - "
+					+ (int) Math.ceil((attributes[WeaponAttributes.QUANTUM_HIGH]))
+					+"\n";
+		}
+		if(attributes[WeaponAttributes.VOID_LOW]>0) {
+			toReturn+="Void Damage: " 
+					+ (int) Math.floor((attributes[WeaponAttributes.VOID_LOW]))
+					+" - "
+					+ (int) Math.ceil((attributes[WeaponAttributes.VOID_HIGH]))
+					+"\n";
+		}
+			
 		toReturn	+="Rate of Fire: " 
 					+ (int) (attributes[WeaponAttributes.RATE_OF_FIRE])
 					+"\n";
