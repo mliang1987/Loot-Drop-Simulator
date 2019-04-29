@@ -10,7 +10,7 @@ import java.util.List;
 
 public class WeaponAttributes{
 	
-	public static final int NUMBER_OF_WEAPON_ATTRIBUTES = 28;
+	public static final int NUMBER_OF_WEAPON_ATTRIBUTES = 29;
 	public static final double KINETIC_SCALING_RATIO 	= 1.2;
 
 	public static final int 
@@ -41,7 +41,8 @@ public class WeaponAttributes{
 		SPREAD					= 24,
 		BLAST_RADIUS			= 25,
 		VELOCITY				= 26,
-		FIRE_MODE				= 27;
+		FIRE_MODE				= 27,
+		EFFECTIVNESS			= 28;
 
 	public static HashMap<String, double[]> weaponBases = new HashMap<>();
 	

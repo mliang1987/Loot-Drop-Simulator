@@ -123,7 +123,10 @@ public class Weapon extends Item {
 			toReturn+="Critical Chance: " 
 					+ (int) (attributes[WeaponAttributes.CRITICAL_CHANCE])
 					+"%\n";
-		}
+			toReturn+="Critical Multiplier: " 
+					+ (int) (attributes[WeaponAttributes.CRITICAL_MULTIPLIER]*100)
+					+"%\n";
+					}
 		if(attributes[WeaponAttributes.PROJECTILES]>1) {
 			toReturn+="Projectiles: " 
 					+ (int) (attributes[WeaponAttributes.PROJECTILES])
