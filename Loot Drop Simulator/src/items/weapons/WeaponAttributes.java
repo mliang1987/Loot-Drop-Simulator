@@ -48,7 +48,7 @@ public class WeaponAttributes{
 	
 	public static void initialize() {
 		try {
-			WeaponAttributes.readWeaponBases();
+			readWeaponBases();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

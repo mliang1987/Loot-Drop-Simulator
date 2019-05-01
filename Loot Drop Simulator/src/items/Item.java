@@ -1,5 +1,6 @@
 package items;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Item {
@@ -25,14 +26,22 @@ public class Item {
 	String name;
 	String base;
 	int itemLevel;
+	protected ArrayList<Affix> prefixes;
+	protected ArrayList<Affix> suffixes;
+	protected Affix implicit;
+	protected double[] attributes;
 	
-	public Item(Type type, Rarity rarity, int itemLevel, String name) {
+	public Item(Type type, Rarity rarity, int itemLevel, String name, double[] attributes) {
 		this.type = type;
 		this.rarity = rarity;
 		this.name = name;
 		this.base = name;
 		this.itemLevel = itemLevel;
 		this.rarity = Rarity.COMMON;
+		this.prefixes = new ArrayList<Affix>();
+		this.suffixes= new ArrayList<Affix>();
+		this.implicit = null;
+		this.attributes = attributes;
 	}
 	
 	public Type getItemType() {
