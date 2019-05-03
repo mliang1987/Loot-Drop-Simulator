@@ -83,4 +83,30 @@ public class Item {
 		}
 		return name;
 	}
+	
+	/**
+	 * Static helper method for randomly determining the amount of prefixes and suffixes to roll for an item.
+	 * @return An size-3 array of ints: array[0]->total rolls, array[1]->prefix rolls, array[2]->suffix rolls
+	 */
+	public static int[] generateRareAffixAmounts() {
+		int totalRolls  = ((int) (Math.random()*4)+3);
+		int prefixRolls = 1;
+		int suffixRolls = 1;
+		while(prefixRolls + suffixRolls <totalRolls) {
+			int flip = (int) (Math.random()*2);
+			if(flip == 0) {
+				if(prefixRolls < 3) {
+					prefixRolls++;
+				}
+			}
+			else {
+				if(suffixRolls < 3) {
+					suffixRolls++;
+				}
+			}
+		}
+		return new int[] {totalRolls, prefixRolls, suffixRolls};
+	}
+	
+	
 }

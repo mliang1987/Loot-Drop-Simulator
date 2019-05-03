@@ -4,7 +4,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -40,13 +39,6 @@ public class WeaponPrefix extends ExplicitAffix{
 		stats = new ArrayList<String>(affixStats);	
 		type = Enum.valueOf(Type.class, this.stats.get(WeaponPrefix.MOD_TYPE));
 		subtype = Enum.valueOf(Subtype.class, this.stats.get(WeaponPrefix.MOD_SUBTYPE));
-	}
-	
-	public String getStatString(int index) {
-		return stats.get(index);
-	}
-	public double getStatDouble(int index) throws NumberFormatException{
-		return Double.parseDouble(stats.get(index));
 	}
 	
 	public static final int NUMBER_OF_CATEGORIES = 15;

@@ -1,9 +1,6 @@
 package items;
 
-import java.util.Comparator;
 import java.util.Random;
-
-import items.weapons.WeaponPrefix;
 
 public class Affix {
 	
