@@ -4,6 +4,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -13,11 +14,32 @@ import items.ExplicitAffix;
 
 public class WeaponPrefix extends ExplicitAffix{
 	
+	public enum Type{
+		INCREASE,
+		ADD;
+	}
+	public enum Subtype{
+		LOW_HIGH,
+		PERCENTAGE,
+		FLAT;
+	}
+	
 	ArrayList<String> stats;
+	Type type;
+	Subtype subtype;
 	
 	public WeaponPrefix(String name, ArrayList<String> affixStats) {
-		super(ExplicitAffix.Type.PREFIX,name, 0,0,null);
-		stats = new ArrayList<String>(affixStats);			
+		super(ExplicitAffix.Type.PREFIX,
+				name, 
+				Double.parseDouble(affixStats.get(WeaponPrefix.LOW)),
+				Double.parseDouble(affixStats.get(WeaponPrefix.HIGH)),
+				Double.parseDouble(affixStats.get(WeaponPrefix.LOW2)),
+				Double.parseDouble(affixStats.get(WeaponPrefix.HIGH2)),
+				Integer.parseInt(affixStats.get(WeaponPrefix.PRIORITY)),
+				null);
+		stats = new ArrayList<String>(affixStats);	
+		type = Enum.valueOf(Type.class, this.stats.get(WeaponPrefix.MOD_TYPE));
+		subtype = Enum.valueOf(Subtype.class, this.stats.get(WeaponPrefix.MOD_SUBTYPE));
 	}
 	
 	public String getStatString(int index) {
@@ -27,19 +49,23 @@ public class WeaponPrefix extends ExplicitAffix{
 		return Double.parseDouble(stats.get(index));
 	}
 	
-	public static final int NUMBER_OF_CATEGORIES = 12;
+	public static final int NUMBER_OF_CATEGORIES = 15;
 	public static final int ATTRIBUTE_TYPE 		= 0,
 							TIER				= 1,
 							MOD_TYPE			= 2,
-							TOTAL_TIERS			= 3,
-							LEVEL_RESTRICTION	= 4,
-							SCOPE				= 5,
-							BASE_LOW			= 6,
-							BASE_HIGH			= 7,
-							SPREAD				= 8,
-							HIGH_PER_TIER		= 9,
-							LOW					= 10,
-							HIGH				= 11;
+							MOD_SUBTYPE			= 3,
+							TOTAL_TIERS			= 4,
+							LEVEL_RESTRICTION	= 5,
+							SCOPE				= 6,
+							LOW					= 7,
+							HIGH				= 8,
+							LOW2				= 9,
+							HIGH2				= 10,
+							SPREAD				= 11,
+							HIGH_PER_TIER		= 12,	
+							TEXT				= 13,
+							PRIORITY			= 14;
+	
 	
 	public static HashMap<String, ArrayList<String>> weaponPrefixes;
 	public static HashMap<Integer, ArrayList<String>> prefixRangeByLevel;
@@ -68,10 +94,12 @@ public class WeaponPrefix extends ExplicitAffix{
 		records.remove(0);
 		for(ArrayList<String> l : records) {
 			String baseID = l.remove(0);
-			for(int i = 100 ; i > Integer.parseInt(l.get(WeaponPrefix.LEVEL_RESTRICTION)); i--){
+			int restrict = Integer.parseInt(l.get(WeaponPrefix.LEVEL_RESTRICTION));
+			for(int i = restrict+1 ; i<=100 && i< restrict + 60 ; i++){
 				prefixRangeByLevel.get(i).add(baseID);
 			}
 			weaponPrefixes.put(baseID, l);
+
 		}
 	}
 	

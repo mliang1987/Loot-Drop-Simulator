@@ -1,13 +1,12 @@
 package items.weapons;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 import items.*;
 import items.weapons.WeaponAttributes;
-import items.weapons.Weapon.Archetype;
-import items.weapons.Weapon.Slot;
-import items.weapons.Weapon.Type;
 
 public class Weapon extends Item {
 	
@@ -57,18 +56,12 @@ public class Weapon extends Item {
 		this.archetype=archetype;
 	}
 	
+	public void addWeaponPrefix(WeaponPrefix wp) {
+		
+	}
+	
 	public void changeWeaponRarity(Rarity rarity) {
-		if(rarity != this.getRarity()) {
-			if(rarity == Rarity.COMMON) {
-				
-			}
-			else if (rarity == Rarity.UNCOMMON) {
-				
-			}
-			else {
-				this.changeItemName(Item.generateItemName(Item.Type.WEAPON, Item.Rarity.RARE, this.getItemName()));
-			}
-		}
+		this.changeRarity(rarity);
 	}
 	
 	public Slot getWeaponSlot() {
@@ -85,6 +78,40 @@ public class Weapon extends Item {
 	public double calculateDPS() {
 		double dps = 0;
 		return dps;
+	}
+	
+	public String prefixToString(WeaponPrefix wp) {
+		String toReturn = "";
+		switch (wp.type) {
+			case ADD:
+				toReturn+= "Adds ";
+				switch (wp.subtype) {
+					case LOW_HIGH:
+						toReturn+= (int) (wp.getValue()*this.attributes[WeaponAttributes.EFFECTIVNESS])
+								+ "-"
+								+ (int) Math.ceil(wp.getValue2()*this.attributes[WeaponAttributes.EFFECTIVNESS])
+								+ " to ";
+						break;
+					case PERCENTAGE:
+						toReturn+= (int) wp.getValue()
+								+ "% ";
+						break;
+					default:
+						toReturn+= (int) wp.getValue()
+								+ " to ";
+						break;
+
+				}
+				toReturn+= wp.stats.get(WeaponPrefix.TEXT) + "\n";
+				break;
+			default:
+				toReturn+= (int) wp.getValue()
+						+ "% increased "
+						+ wp.stats.get(WeaponPrefix.TEXT)
+						+ "\n";
+				break;
+		}		
+		return toReturn;
 	}
 	
 	
@@ -155,12 +182,57 @@ public class Weapon extends Item {
 		toReturn+="Magazine Size: " + (int) (attributes[WeaponAttributes.MAGAZINE])+"\n";
 		toReturn+="Reserve Ammo: " + (int) (attributes[WeaponAttributes.RESERVE_AMMO])+"\n";
 		toReturn+="Tier: " + tier+"\n";
-		toReturn+="Item Level: " + this.getItemLevel() +"\n";
+		toReturn+="Item Level: " + this.getItemLevel() +"\n-------------------------------\n";
+		for(Affix aff : this.prefixes) {
+			WeaponPrefix wp = (WeaponPrefix) aff;
+			toReturn+= this.prefixToString(wp);
+		}
 		return toReturn;
 	}
 	
+	public static void recalculateDamage(Weapon w) {
+		for(Affix a : w.prefixes) {
+			WeaponPrefix wp = (WeaponPrefix) a;
+			String n = wp.getName();
+			if(n.startsWith("WEAPON_TIER")) {
+				Weapon newWeap = generateWeapon(
+						w.slot, 
+						w.type, 
+						w.archetype, 
+						w.getItemLevel(), 
+						(int) (w.tier+wp.getValue()));
+				w.attributes[WeaponAttributes.KINETIC_LOW]=newWeap.attributes[WeaponAttributes.KINETIC_LOW];
+				w.attributes[WeaponAttributes.KINETIC_HIGH]=newWeap.attributes[WeaponAttributes.KINETIC_HIGH];
+				w.tier += (int)wp.getValue();
+			}
+			else if(n.startsWith("KINETIC_FLAT")) {
+				w.attributes[WeaponAttributes.KINETIC_LOW]+=wp.getValue()*w.attributes[WeaponAttributes.EFFECTIVNESS];
+				w.attributes[WeaponAttributes.KINETIC_HIGH]+=wp.getValue2()*w.attributes[WeaponAttributes.EFFECTIVNESS];
+			}
+			else if(n.startsWith("VOID_FLAT")) {
+				w.attributes[WeaponAttributes.VOID_LOW]+=wp.getValue()*w.attributes[WeaponAttributes.EFFECTIVNESS];
+				w.attributes[WeaponAttributes.VOID_HIGH]+=wp.getValue2()*w.attributes[WeaponAttributes.EFFECTIVNESS];				
+			}
+			else if(n.startsWith("QUANTUM_FLAT")) {
+				w.attributes[WeaponAttributes.QUANTUM_LOW]+=wp.getValue()*w.attributes[WeaponAttributes.EFFECTIVNESS];
+				w.attributes[WeaponAttributes.QUANTUM_HIGH]+=wp.getValue2()*w.attributes[WeaponAttributes.EFFECTIVNESS];
+			}
+			else if(n.startsWith("ENTROPY_FLAT")) {
+				w.attributes[WeaponAttributes.ENTROPY_LOW]+=wp.getValue()*w.attributes[WeaponAttributes.EFFECTIVNESS];
+				w.attributes[WeaponAttributes.ENTROPY_HIGH]+=wp.getValue2()*w.attributes[WeaponAttributes.EFFECTIVNESS];				
+			}
+			else if(n.startsWith("KINETIC_INCREASE")) {
+				w.attributes[WeaponAttributes.KINETIC_LOW]*=(wp.getValue()/100);
+				w.attributes[WeaponAttributes.KINETIC_HIGH]*=(wp.getValue()/100);				
+			}
+		}
+	}
+	
 	@SuppressWarnings("unchecked")
-	public static void rerollRareWeapon(Weapon weapon, Item.Rarity rarity) {
+	public static Weapon rerollRareWeapon(Weapon w) {
+		Weapon weapon = generateWeapon(w.slot, w.type, w.archetype, w.getItemLevel(), w.tier);
+		weapon.prefixes = new ArrayList<Affix>();
+		weapon.suffixes = new ArrayList<Affix>();
 		int level = weapon.getItemLevel();
 		ArrayList<String> possibleRolls = (ArrayList<String>) WeaponPrefix.getWeaponPrefixRange(level).clone();
 		weapon.prefixes = new ArrayList<Affix>();
@@ -181,45 +253,32 @@ public class Weapon extends Item {
 				}
 			}
 		}
-		System.out.println("Affixes: "+totalRolls);
-		System.out.println("Prefixes: "+prefixRolls);
 		ArrayList<String> prefixes = new ArrayList<String>(); 
 		ArrayList<String> suffixes = new ArrayList<String>(); 
 		for(int p = 0; p< prefixRolls; p++) {
 			Random random = new Random();
 			String roll = possibleRolls.get(random.nextInt(possibleRolls.size()));
-			String roll2 = null;
-			if(	roll.substring(0,roll.length()-2).endsWith("FLAT_LOW")) {
-				roll2 = roll.split("_")[0]+"_FLAT_HIGH_"+roll.substring(roll.length()-1);
-				prefixes.add(roll);
-				prefixes.add(roll2);
-			}
-			else if(roll.substring(0,roll.length()-2).endsWith("FLAT_HIGH")) {
-				roll2 = roll.split("_")[0]+"_FLAT_LOW_"+roll.substring(roll.length()-1);
-				prefixes.add(roll2);
-				prefixes.add(roll);
-				
-			}
-			else {
-				prefixes.add(roll);
-			}
+			prefixes.add(roll);
 			ArrayList<String> toRemove = new ArrayList<String>();
 			for(String s : possibleRolls) {
 				if(s.substring(0,s.length()-2).equals(roll.substring(0,roll.length()-2))){
 					toRemove.add(s);
 				}
-				if(roll2!=null) {
-					if(s.substring(0,s.length()-2).equals(roll2.substring(0,roll2.length()-2))){
-						toRemove.add(s);
-					}	
-				}
 			}
 			for(String s : toRemove) {
 				possibleRolls.remove(s);
 			}
+		}		
+		for(String s : prefixes) {
+			ArrayList<String> tempAffix = WeaponPrefix.weaponPrefixes.get(s);
+			String tempName = tempAffix.get(WeaponPrefix.ATTRIBUTE_TYPE)+"_"+tempAffix.get(WeaponPrefix.TIER);
+			weapon.prefixes.add(new WeaponPrefix(tempName,tempAffix));
 		}
-		System.out.println(prefixes);
-		
+		weapon.changeRarity(Item.Rarity.RARE);
+		weapon.changeItemName(Item.generateItemName(Item.Type.WEAPON, Item.Rarity.RARE, weapon.getItemName()));
+		Collections.sort( weapon.prefixes, new AffixSorter());
+		recalculateDamage(weapon);
+		return weapon;
 	}
 	
 	public static Weapon generateWeapon(Slot slot, Type type, int zoneLevel, int tier) {
@@ -227,7 +286,11 @@ public class Weapon extends Item {
 		while(archetype == null || (slot==Slot.TERTIARY && archetype==Archetype.RAPID)) {
 			archetype = Archetype.getRandomWeaponArchetype();
 		}
+		return generateWeapon(slot,type,archetype,zoneLevel,tier);
 		
+	}
+	
+	public static Weapon generateWeapon(Slot slot, Type type, Archetype archetype, int zoneLevel, int tier) {
 		String baseName = generateBaseName(type, tier, archetype);
 		double[] attributes = WeaponAttributes.getAttributes(type+"_"+archetype).clone();
 		
@@ -255,8 +318,7 @@ public class Weapon extends Item {
 		}		
 		
 		Weapon toReturn = new Weapon(slot, type, archetype, attributes, zoneLevel, tier, baseName);
-		toReturn.changeWeaponRarity(Item.Rarity.getRandomItemRarity());
-		System.out.println(toReturn);
+		toReturn.changeRarity(Item.Rarity.COMMON);
 		return toReturn;
 	}
 
