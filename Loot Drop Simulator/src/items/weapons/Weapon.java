@@ -6,6 +6,7 @@ import java.util.Random;
 
 import items.*;
 import items.weapons.WeaponAttributes;
+import player.Player;
 
 /**
  * Class for representing a Weapon.  Contains class-based methods to generate and 
@@ -73,10 +74,32 @@ public class Weapon extends Item {
 		this.archetype=archetype;
 	}
 	
-	public double calculateDPS() {
-		double dps = 0;
-		return dps;
+	
+	public double[] calculateDPS(Player p) {
+		double 	kineticDPS 	= calculateDPS(p, WeaponAttributes.KINETIC_LOW, WeaponAttributes.KINETIC_HIGH), 
+				entropyDPS 	= calculateDPS(p, WeaponAttributes.ENTROPY_LOW, WeaponAttributes.ENTROPY_HIGH), 
+				quantumDPS 	= calculateDPS(p, WeaponAttributes.QUANTUM_LOW, WeaponAttributes.QUANTUM_HIGH), 
+				voidDPS		= calculateDPS(p, WeaponAttributes.VOID_LOW, WeaponAttributes.VOID_HIGH),
+				precision	= this.attributes[WeaponAttributes.PRECISION_MULTIPLIER];
+		return new double[] {kineticDPS,
+								entropyDPS,
+								quantumDPS,
+								voidDPS,
+								kineticDPS*precision,
+								entropyDPS*precision,
+								quantumDPS*precision,
+								voidDPS*precision
+							};
 	}
+	
+	double calculateDPS(Player p, int low, int high) {
+		double baseDamage = ((this.attributes[low]+this.attributes[high])/2)*this.attributes[WeaponAttributes.RATE_OF_FIRE]/60;
+		double critChance = this.attributes[WeaponAttributes.CRITICAL_CHANCE]/100;
+		double critMulti = this.attributes[WeaponAttributes.CRITICAL_MULTIPLIER];
+		double projectiles = this.attributes[WeaponAttributes.PROJECTILES];		
+		return baseDamage*projectiles*(1+critChance)*(critMulti);
+	}
+	
 	
 	/**
 	 * Converts a WeaponPrefix to a String, scaled for this specific Weapon.
@@ -235,6 +258,12 @@ public class Weapon extends Item {
 			WeaponSuffix wp = (WeaponSuffix) aff;
 			toReturn+= this.suffixToString(wp);
 		}
+		double[] dps = this.calculateDPS(new Player());
+		toReturn+="-------------------------------\n"
+				+"Kinetic DPS: " + (int)dps[0] + " / Precision: " + (int)dps[4] + "\n"
+				+"Entropy DPS: " + (int)dps[1] + " / Precision: " + (int)dps[5] + "\n"
+				+"Quantum DPS: " + (int)dps[2] + " / Precision: " + (int)dps[6] + "\n"
+				+"Void DPS: "    + (int)dps[3] + " / Precision: " + (int)dps[7] + "\n";
 		return toReturn;
 	}
 	

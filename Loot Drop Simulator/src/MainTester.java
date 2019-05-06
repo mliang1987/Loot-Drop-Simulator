@@ -37,7 +37,7 @@ public class MainTester {
 		}
 	}
 	public static void weaponRerollTesting() {
-		for(int x = 1; x<=100; x++) {
+		for(int zoneLevel = 1; zoneLevel<=100; zoneLevel++) {
 			Weapon.Slot slot;
 			Weapon.Type type = Weapon.Type.getRandomWeaponType();
 			if(type == Weapon.Type.PISTOL ||type == Weapon.Type.RIFLE || type == Weapon.Type.SUBMACHINE ) {
@@ -49,10 +49,7 @@ public class MainTester {
 			else {
 				slot = Weapon.Slot.TERTIARY;
 			}
-			
-			//int i = (int) (Math.random()*100) +1;
-			// int i = 100;
-			Weapon w = Weapon.generateRandomArchetypeWeapon(slot, type,x,Weapon.generateRandomTier(x));
+			Weapon w = Weapon.generateRandomArchetypeWeapon(slot, type, zoneLevel, Weapon.generateRandomTier(zoneLevel));
 			System.out.println(w);
 			w = Weapon.rerollWeaponToRare(w);
 			System.out.println(w);
