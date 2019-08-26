@@ -224,7 +224,7 @@ public class Weapon extends Item {
 					+ (int) (attributes[WeaponAttributes.CRITICAL_MULTIPLIER]*100)
 					+"%\n";
 		}
-		if(attributes[WeaponAttributes.PRECISION_MULTIPLIER]>0) {
+		if(attributes[WeaponAttributes.PRECISION_MULTIPLIER]>1) {
 			toReturn+="Precision Multiplier: " 
 					+ (int) (attributes[WeaponAttributes.PRECISION_MULTIPLIER]*100)
 					+"%\n";
@@ -249,7 +249,9 @@ public class Weapon extends Item {
 		toReturn+="Magazine Size: " + (int) (attributes[WeaponAttributes.MAGAZINE])+"\n";
 		toReturn+="Reserve Ammo: " + (int) (attributes[WeaponAttributes.RESERVE_AMMO])+"\n";
 		toReturn+="Tier: " + tier+"\n";
-		toReturn+="Item Level: " + this.getItemLevel() +"\n-------------------------------\n";
+		toReturn+="Item Level: " + this.getItemLevel()+"\n";
+		if(this.prefixes.size()+this.suffixes.size() > 0)
+			toReturn+="-------------------------------\n";
 		for(Affix aff : this.prefixes) {
 			WeaponPrefix wp = (WeaponPrefix) aff;
 			toReturn+= this.prefixToString(wp);
